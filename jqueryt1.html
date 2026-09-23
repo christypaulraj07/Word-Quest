@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Traffic Light Car Animation</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: white;
+      padding: 20px;
+    }
+
+    
+    .scene-container {
+      position: relative;
+      width: 800px;
+      height: 450px;
+      overflow: hidden;
+      border: 3px solid gray;
+      border-radius: 8px;
+      background-color: beige;
+    }
+
+    .mountain-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 70%;
+      object-fit: cover;
+    }
+
+    .road {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 35%;
+      object-fit: cover;
+      z-index: 2;
+    }
+
+    .car {
+      position: absolute;
+      bottom: 25px;
+      left: 20px;
+      width: 140px;
+      z-index: 3;
+    }
+
+    
+    .traffic-box {
+      position: absolute;
+      top: 20px;
+      right: 25px;
+      width: 50px;
+      padding: 10px;
+      background-color: gray;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      z-index: 10;
+      box-shadow: 0 4px 10px black;
+    }
+
+    .light {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background-color: gray;
+      opacity: 0.3;
+      transition: opacity 0.2s, box-shadow 0.2s;
+    }
+
+    .light.red.active {
+      background-color: red;
+      opacity: 1;
+      box-shadow: 0 0 15px red;
+    }
+
+    .light.yellow.active {
+      background-color: yellow;
+      opacity: 1;
+      box-shadow: 0 0 15px yellow;
+    }
+
+    .light.green.active {
+      background-color: lightgreen;
+      opacity: 1;
+      box-shadow: 0 0 15px lightgreen;
+    }
+
+    
+    .controls {
+      margin-top: 20px;
+      display: flex;
+      gap: 15px;
+    }
+
+    button {
+      padding: 10px 24px;
+      font-size: 16px;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    #startBtn {
+      background-color: green;
+      color: white;
+    }
+
+    #startBtn:hover {
+      background-color: lightgreen;
+    }
+
+    #stopBtn {
+      background-color: red;
+      color: white;
+    }
+
+    #stopBtn:hover {
+      background-color: red;
+    }
+
+    button:disabled {
+      background-color: gainsboro;
+      cursor: not-allowed;
+    }
+  </style>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+</head>
+<body>
+
+  <div class="scene-container">
+    <img src="mountain.jfif" alt="Mountain Background" class="mountain-bg" />
+    <img src="road.jfif" alt="Road" class="road" />
+    <img src="9471.png" alt="Car" id="car" class="car" />
+
+    
+    <div class="traffic-box">
+      <div class="light red active" id="redLight"></div>
+      <div class="light yellow" id="yellowLight"></div>
+      <div class="light green" id="greenLight"></div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button id="startBtn">Start</button>
+    <button id="stopBtn" disabled>Stop</button>
+  </div>
+
+  <script>
+    $(document).ready(function () {
+      const $car = $("#car");
+      const $red = $("#redLight");
+      const $yellow = $("#yellowLight");
+      const $green = $("#greenLight");
+      const $startBtn = $("#startBtn");
+      const $stopBtn = $("#stopBtn");
+
+      function setLight(color) {
+        $(".light").removeClass("active");
+        if (color === "red") $red.addClass("active");
+        if (color === "yellow") $yellow.addClass("active");
+        if (color === "green") $green.addClass("active");
+      }
+
+      function driveLoop() {
+        const currentLeft = parseInt($car.css("left"), 10);
+        const targetDistance = 750;
+        const remainingDist = targetDistance - currentLeft;
+        const speedFactor = 8; 
+
+        $car.animate(
+          { left: targetDistance + "px" },
+          remainingDist * speedFactor,
+          "linear",
+          function () {
+           
+            $car.css("left", "-150px");
+            driveLoop();
+          }
+        );
+      }
+
+      
+      $startBtn.on("click", function () {
+        $startBtn.prop("disabled", true);
+        $stopBtn.prop("disabled", false);
+
+        setLight("green");
+
+        
+        setTimeout(function () {
+          driveLoop();
+        }, 500);
+      });
+
+      
+      $stopBtn.on("click", function () {
+        $stopBtn.prop("disabled", true);
+
+        
+        setLight("yellow");
+
+        
+        const stopPosition = parseInt($car.css("left"), 10) + 60;
+        $car.stop().animate({ left: stopPosition + "px" }, 800, "swing", function () {
+          
+          setLight("red");
+          $startBtn.prop("disabled", false);
+        });
+      });
+    });
+  </script>
+</body>
+</html>
